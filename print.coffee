@@ -1,5 +1,37 @@
 power_str = "^"
 stringToBePrinted = ""
+latexMode = true
+
+Eval_display = ->
+	p1 = cdr(p1);
+
+	while (iscons(p1))
+
+		push(car(p1));
+		eval();
+		p2 = pop();
+
+		# display single symbol as "symbol = result"
+
+		# but don't display "symbol = symbol"
+
+		if (issymbol(car(p1)) && car(p1) != p2)
+			push_symbol(SETQ);
+			push(car(p1));
+			push(p2);
+			list(3);
+			p2 = pop();
+
+		if (equaln(get_binding(symbol(TTY)), 1))
+			printline(p2);
+		else
+			printline(p2);
+			#push(p2);
+			#cmdisplay();
+
+		p1 = cdr(p1);
+
+	push(symbol(NIL));
 
 print_str = (s) ->
 	stringToBePrinted += s
@@ -58,9 +90,14 @@ print_denom = (p, d) ->
 	p2 = pop(); # p2 is EXPO
 
 	if (isfraction(p2) || car(p2) == symbol(ADD) || car(p2) == symbol(MULTIPLY) || car(p2) == symbol(POWER)) # p2 is EXPO
-		print_char('(')
-		print_expr(p2); # p2 is EXPO
-		print_char(')')
+		if latexMode
+			print_char('{')
+			print_expr(p2); # p2 is EXPO
+			print_char('}')
+		else
+			print_char('(')
+			print_expr(p2); # p2 is EXPO
+			print_char(')')
 	else
 		print_expr(p2); # p2 is EXPO
 
@@ -113,6 +150,9 @@ print_a_over_b = (p) ->
 			n++
 		p1 = cdr(p1)
 
+	if latexMode
+		print_str('\\frac{')
+
 	if (n == 0)
 		print_char('1')
 	else
@@ -134,7 +174,9 @@ print_a_over_b = (p) ->
 				flag = 1
 			p1 = cdr(p1)
 
-	if (test_flag == 0)
+	if latexMode
+		print_str('}{')
+	else if (test_flag == 0)
 		print_str(" / ")
 	else
 		print_str("/")
@@ -164,6 +206,9 @@ print_a_over_b = (p) ->
 
 	if (d > 1)
 		print_char(')')
+
+	if latexMode
+		print_str('}')
 
 	restore()
 
@@ -237,6 +282,22 @@ print_factorial_function = (p) ->
 		print_expr(p)
 	print_char('!')
 
+print_ABS_latex = (p) ->
+	print_str("\\left |")
+	p = cadr(p)
+	print_expr(p)
+	print_str(" \\right |")
+
+print_DEFINT_latex = (p) ->
+	print_str("\\int^{")
+	print_expr(car(cdr(cdr(cdr(cdr(p))))))
+	print_str("}_{")
+	print_expr(car(cdr(cdr(cdr(p)))))
+	print_str("} \\! ")
+	print_expr(car(cdr(p)))
+	print_str(" \\, \\mathrm{d} ")
+	print_expr(car(cdr(cdr(p))))
+
 
 print_tensor = (p) ->
 	print_tensor_inner(p, 0, 0)
@@ -282,9 +343,14 @@ print_factor = (p) ->
 	if (car(p) == symbol(POWER))
 
 		if (cadr(p) == symbol(E))
-			print_str("exp(")
-			print_expr(caddr(p))
-			print_str(")")
+			if latexMode
+				print_str("e^{")
+				print_expr(caddr(p))
+				print_str("}")
+			else
+				print_str("exp(")
+				print_expr(caddr(p))
+				print_str(")")
 			return
 
 		if (isminusone(caddr(p)))
@@ -318,9 +384,15 @@ print_factor = (p) ->
 			print_str("^")
 
 		if (iscons(caddr(p)) || isfraction(caddr(p)) || (isnum(caddr(p)) && lessp(caddr(p), zero)))
-			print_str("(")
+			if latexMode
+				print_str("{")
+			else
+				print_str("(")
 			print_expr(caddr(p))
-			print_str(")")
+			if latexMode
+				print_str("}")
+			else
+				print_str(")")
 		else
 			print_factor(caddr(p))
 		return
@@ -348,6 +420,13 @@ print_factor = (p) ->
 	if (car(p) == symbol(FACTORIAL))
 		print_factorial_function(p)
 		return
+	else if (car(p) == symbol(ABS) && latexMode)
+		print_ABS_latex(p)
+		return
+	else if (car(p) == symbol(DEFINT) && latexMode)
+		debugger
+		print_DEFINT_latex(p)
+		return
 
 	if (iscons(p))
 		#if (car(p) == symbol(FORMAL) && cadr(p)->k == SYM) {
@@ -373,9 +452,15 @@ print_factor = (p) ->
 	if (p == symbol(DERIVATIVE))
 		print_char('d')
 	else if (p == symbol(E))
-		print_str("exp(1)")
+		if latexMode
+			print_str("e")
+		else
+			print_str("exp(1)")
 	else if (p == symbol(PI))
-		print_str("pi")
+		if latexMode
+			print_str("\\pi")
+		else
+			print_str("pi")
 	else
 		print_str(get_printname(p))
 

@@ -30,7 +30,7 @@ init = ->
 		binding[i] = symtab + i
 		arglist[i] = symbol(NIL)
 
-	std_symbol("abs", ABS)
+	std_symbol("abs", ABS, 0)
 	std_symbol("add", ADD)
 	std_symbol("adj", ADJ)
 	std_symbol("and", AND)
@@ -170,7 +170,7 @@ init = ->
 	std_symbol("$METAX", METAX)
 	std_symbol("$SECRETX", SECRETX)
 
-	std_symbol("pi", PI)
+	std_symbol("pi", PI, "\pi")
 	std_symbol("a", SYMBOL_A)
 	std_symbol("b", SYMBOL_B)
 	std_symbol("c", SYMBOL_C)
