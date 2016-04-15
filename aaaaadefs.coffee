@@ -198,6 +198,7 @@ NIL = counter++	# nil goes here, after standard functions
 AUTOEXPAND = counter++
 BAKE = counter++
 LAST = counter++
+LAST_LATEX_PRINT = counter++
 TRACE = counter++
 TTY = counter++
 

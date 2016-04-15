@@ -162,6 +162,7 @@ init = ->
 	std_symbol("autoexpand", AUTOEXPAND)
 	std_symbol("bake", BAKE)
 	std_symbol("last", LAST)
+	std_symbol("lastlatexprint", LAST_LATEX_PRINT)
 	std_symbol("trace", TRACE)
 	std_symbol("tty", TTY)
 

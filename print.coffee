@@ -23,11 +23,20 @@ Eval_display = ->
 			p2 = pop();
 
 		if (equaln(get_binding(symbol(TTY)), 1))
-			printline(p2);
+			beenPrinted = printline(p2);
 		else
-			printline(p2);
+			beenPrinted = printline(p2);
 			#push(p2);
 			#cmdisplay();
+
+		# we put the printed string into
+		# a special variable that we are
+		# then going to check for the tests
+		if latexMode
+			scan('"' + beenPrinted + '"')
+			parsedString = pop()
+			set_binding(symbol(LAST_LATEX_PRINT), parsedString)
+
 
 		p1 = cdr(p1);
 
@@ -49,6 +58,7 @@ printline = (p) ->
 	stringToBePrinted = ""
 	print_expr(p)
 	console.log stringToBePrinted
+	return stringToBePrinted
 
 
 # prints stuff after the divide symbol "/"
