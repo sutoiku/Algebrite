@@ -181,7 +181,7 @@ print_a_over_b = (p) ->
 	else
 		print_str("/")
 
-	if (d > 1)
+	if (d > 1 and !latexMode)
 		print_char('(')
 
 
@@ -204,7 +204,7 @@ print_a_over_b = (p) ->
 			flag = 1
 		p1 = cdr(p1)
 
-	if (d > 1)
+	if (d > 1 and !latexMode)
 		print_char(')')
 
 	if latexMode
@@ -289,14 +289,36 @@ print_ABS_latex = (p) ->
 	print_str(" \\right |")
 
 print_DEFINT_latex = (p) ->
-	print_str("\\int^{")
-	print_expr(car(cdr(cdr(cdr(cdr(p))))))
-	print_str("}_{")
-	print_expr(car(cdr(cdr(cdr(p)))))
-	print_str("} \\! ")
-	print_expr(car(cdr(p)))
-	print_str(" \\, \\mathrm{d} ")
-	print_expr(car(cdr(cdr(p))))
+	functionBody = car(cdr(p))
+
+	p = cdr(p)
+	originalIntegral = p
+	numberOfIntegrals = 0
+
+	while iscons(cdr(cdr(p)))
+		numberOfIntegrals++
+		theIntegral = cdr(cdr(p))
+
+		print_str("\\int^{")
+		print_expr(car(cdr(theIntegral)))
+		print_str("}_{")
+		print_expr(car(theIntegral))
+		print_str("} \\! ")
+		p = cdr(theIntegral)
+
+	print_expr(functionBody)
+	print_str(" \\,")
+
+	p = originalIntegral
+
+	for i in [1..numberOfIntegrals]
+		theVariable = cdr(p)
+		print_str(" \\mathrm{d} ")
+		print_expr(car(theVariable))
+		if i < numberOfIntegrals
+			print_str(" \\, ")
+		p = cdr(cdr(theVariable))
+
 
 
 print_tensor = (p) ->
@@ -334,7 +356,20 @@ print_factor = (p) ->
 		print_tensor(p)
 		return
 
-	if (isadd(p) || car(p) == symbol(MULTIPLY))
+	if (car(p) == symbol(MULTIPLY))
+		if (sign_of_term(p) == '-' or !latexMode)
+			if latexMode
+				print_str(" \\left (")
+			else
+				print_str("(")
+		print_expr(p)
+		if (sign_of_term(p) == '-' or !latexMode)
+			if latexMode
+				print_str(" \\right ) ")
+			else
+				print_str("(")
+		return
+	else if (isadd(p))
 		print_str("(")
 		print_expr(p)
 		print_str(")")
@@ -366,10 +401,17 @@ print_factor = (p) ->
 				print_expr(cadr(p))
 			return
 
-		if (isadd(cadr(p)) || caadr(p) == symbol(MULTIPLY) || caadr(p) == symbol(POWER) || isnegativenumber(cadr(p)))
+
+
+
+		if (isadd(cadr(p)) || isnegativenumber(cadr(p)))
 			print_str("(")
 			print_expr(cadr(p))
 			print_str(")")
+		else if ( caadr(p) == symbol(MULTIPLY) || caadr(p) == symbol(POWER))
+			if !latexMode then print_str("(")
+			print_factor(cadr(p))
+			if !latexMode then print_str(")")
 		else if (isnum(cadr(p)) && (lessp(cadr(p), zero) || isfraction(cadr(p))))
 			print_str("(")
 			print_factor(cadr(p))
