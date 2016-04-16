@@ -297,6 +297,13 @@ print_ABS_latex = (p) ->
 	print_expr(cadr(p))
 	print_str(" \\right |")
 
+print_BINOMIAL_latex = (p) ->
+	print_str("\\binom{")
+	print_expr(cadr(p))
+	print_str("}{")
+	print_expr(caddr(p))
+	print_str("} ")
+
 print_DEFINT_latex = (p) ->
 	functionBody = car(cdr(p))
 
@@ -473,6 +480,9 @@ print_factor = (p) ->
 		return
 	else if (car(p) == symbol(ABS) && latexMode)
 		print_ABS_latex(p)
+		return
+	else if (car(p) == symbol(BINOMIAL) && latexMode)
+		print_BINOMIAL_latex(p)
 		return
 	else if (car(p) == symbol(DEFINT) && latexMode)
 		debugger
