@@ -294,8 +294,7 @@ print_factorial_function = (p) ->
 
 print_ABS_latex = (p) ->
 	print_str("\\left |")
-	p = cadr(p)
-	print_expr(p)
+	print_expr(cadr(p))
 	print_str(" \\right |")
 
 print_DEFINT_latex = (p) ->
