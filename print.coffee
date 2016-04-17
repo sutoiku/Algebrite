@@ -493,7 +493,6 @@ print_factor = (p) ->
 		print_BINOMIAL_latex(p)
 		return
 	else if (car(p) == symbol(DEFINT) && latexMode)
-		debugger
 		print_DEFINT_latex(p)
 		return
 
