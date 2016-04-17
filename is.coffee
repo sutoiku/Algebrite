@@ -39,6 +39,17 @@ isplusone = (p) ->
 				return 1
 	return 0
 
+# p is a U
+isplustwo = (p) ->
+	switch (p.k)
+		when NUM
+			if (MEQUAL(p.q.a, 2) && MEQUAL(p.q.b, 1))
+				return 1
+		when DOUBLE
+			if (p.d == 2.0)
+				return 1
+	return 0
+
 isminusone = (p) ->
 	switch (p.k)
 		when NUM
