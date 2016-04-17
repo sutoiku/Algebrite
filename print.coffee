@@ -304,6 +304,11 @@ print_BINOMIAL_latex = (p) ->
 	print_expr(caddr(p))
 	print_str("} ")
 
+print_SQRT_latex = (p) ->
+	print_str("\\sqrt{")
+	print_expr(cadr(p))
+	print_str("} ")
+
 print_DEFINT_latex = (p) ->
 	functionBody = car(cdr(p))
 
@@ -480,6 +485,9 @@ print_factor = (p) ->
 		return
 	else if (car(p) == symbol(ABS) && latexMode)
 		print_ABS_latex(p)
+		return
+	else if (car(p) == symbol(SQRT) && latexMode)
+		print_SQRT_latex(p)
 		return
 	else if (car(p) == symbol(BINOMIAL) && latexMode)
 		print_BINOMIAL_latex(p)
