@@ -8,7 +8,7 @@ Eval_display = ->
 	while (iscons(p1))
 
 		push(car(p1));
-		eval();
+		Eval();
 		p2 = pop();
 
 		# display single symbol as "symbol = result"
