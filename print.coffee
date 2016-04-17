@@ -364,6 +364,134 @@ print_tensor_inner = (p, j, k) ->
 	print_str(")")
 	return k
 
+print_power = (base, exponent) ->
+
+	if (isminusone(exponent))
+		if latexMode
+			print_str("\\frac{1}{")
+		else if (test_flag == 0)
+			print_str("1 / ")
+		else
+			print_str("1/")
+
+		if (iscons(base))
+			print_str("(")
+			print_expr(base)
+			print_str(")")
+		else
+			print_expr(base)
+
+		if latexMode
+			print_str("}")
+
+		return
+
+	if (isnegativeterm(exponent))
+		if latexMode
+			print_str("\\frac{1}{")
+		else if (test_flag == 0)
+			print_str("1 / ")
+		else
+			print_str("1/")
+
+		push(exponent)
+		push_integer(-1)
+		multiply()
+		newExponent = pop()
+
+		if (iscons(base))
+			print_str("(")
+			print_power(base, newExponent)
+			print_str(")")
+		else
+			print_power(base, newExponent)
+
+
+		if latexMode
+			print_str("}")
+
+		return
+
+
+	if (base == symbol(E))
+		if latexMode
+			print_str("e^{")
+			print_expr(exponent)
+			print_str("}")
+		else
+			print_str("exp(")
+			print_expr(exponent)
+			print_str(")")
+		return
+
+	if (isfraction(exponent) and latexMode)
+			print_str("\\sqrt")
+			push(exponent)
+			denominator()
+			denomExponent = pop()
+			# we omit the "2" on the radical
+			if !isplustwo(denomExponent)
+				print_str("[")
+				print_expr(denomExponent)
+				print_str("]")
+			print_str("{")
+			push(exponent)
+			numerator()
+			numExponent = pop()
+			exponent = numExponent
+			print_power(base, exponent)
+			print_str("}")
+			return
+
+	if latexMode and isplusone(exponent)
+		# if we are in latex mode we turn many
+		# radicals into a radix sign with a power
+		# underneath, and the power is often one
+		# (e.g. square root turns into a radical
+		# with a power one underneath) so handle
+		# this case simply here, just print the base
+		print_expr(base)
+	else
+		# print the base,
+		# determining if it needs to be
+		# wrapped in parentheses or not
+		if (isadd(base) || isnegativenumber(base))
+			print_str("(")
+			print_expr(base)
+			print_str(")")
+		else if ( car(base) == symbol(MULTIPLY) || car(base) == symbol(POWER))
+			if !latexMode then print_str("(")
+			print_factor(base)
+			if !latexMode then print_str(")")
+		else if (isnum(base) && (lessp(base, zero) || isfraction(base)))
+			print_str("(")
+			print_factor(base)
+			print_str(")")
+		else
+			print_factor(base)
+
+		# print the power symbol
+		if (test_flag == 0)
+			#print_str(" ^ ")
+			print_str(power_str)
+		else
+			print_str("^")
+
+		# print the exponent
+		if (iscons(exponent) || isfraction(exponent) || (isnum(exponent) && lessp(exponent, zero)))
+			if latexMode
+				print_str("{")
+			else
+				print_str("(")
+			print_expr(exponent)
+			if latexMode
+				print_str("}")
+			else
+				print_str(")")
+		else
+			print_factor(exponent)
+
+
 print_factor = (p) ->
 	if (isnum(p))
 		print_number(p)
@@ -399,67 +527,9 @@ print_factor = (p) ->
 		return
 
 	if (car(p) == symbol(POWER))
-
-		if (cadr(p) == symbol(E))
-			if latexMode
-				print_str("e^{")
-				print_expr(caddr(p))
-				print_str("}")
-			else
-				print_str("exp(")
-				print_expr(caddr(p))
-				print_str(")")
-			return
-
-		if (isminusone(caddr(p)))
-			if (test_flag == 0)
-				print_str("1 / ")
-			else
-				print_str("1/")
-			if (iscons(cadr(p)))
-				print_str("(")
-				print_expr(cadr(p))
-				print_str(")")
-			else
-				print_expr(cadr(p))
-			return
-
-
-
-
-		if (isadd(cadr(p)) || isnegativenumber(cadr(p)))
-			print_str("(")
-			print_expr(cadr(p))
-			print_str(")")
-		else if ( caadr(p) == symbol(MULTIPLY) || caadr(p) == symbol(POWER))
-			if !latexMode then print_str("(")
-			print_factor(cadr(p))
-			if !latexMode then print_str(")")
-		else if (isnum(cadr(p)) && (lessp(cadr(p), zero) || isfraction(cadr(p))))
-			print_str("(")
-			print_factor(cadr(p))
-			print_str(")")
-		else
-			print_factor(cadr(p))
-
-		if (test_flag == 0)
-			#print_str(" ^ ")
-			print_str(power_str)
-		else
-			print_str("^")
-
-		if (iscons(caddr(p)) || isfraction(caddr(p)) || (isnum(caddr(p)) && lessp(caddr(p), zero)))
-			if latexMode
-				print_str("{")
-			else
-				print_str("(")
-			print_expr(caddr(p))
-			if latexMode
-				print_str("}")
-			else
-				print_str(")")
-		else
-			print_factor(caddr(p))
+		base = cadr(p)
+		exponent = caddr(p)
+		print_power(base, exponent)
 		return
 
 	#	if (car(p) == _list) {
