@@ -15,12 +15,14 @@ Eval_display = ->
 
 		# but don't display "symbol = symbol"
 
+		###
 		if (issymbol(car(p1)) && car(p1) != p2)
 			push_symbol(SETQ);
 			push(car(p1));
 			push(p2);
 			list(3);
 			p2 = pop();
+		###
 
 		if (equaln(get_binding(symbol(TTY)), 1))
 			beenPrinted = printline(p2);
