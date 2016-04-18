@@ -163,6 +163,7 @@ POLAR = counter++
 POWER = counter++
 PRIME = counter++
 PRINT = counter++
+PRINTLATEX = counter++
 PRODUCT = counter++
 QUOTE = counter++
 QUOTIENT = counter++

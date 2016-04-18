@@ -1,6 +1,11 @@
 power_str = "^"
 stringToBePrinted = ""
-latexMode = true
+latexMode = false
+
+Eval_printlatex = ->
+	latexMode = true
+	Eval_display()
+	latexMode = false
 
 Eval_display = ->
 	p1 = cdr(p1);

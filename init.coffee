@@ -125,6 +125,7 @@ init = ->
 	std_symbol("power", POWER)
 	std_symbol("prime", PRIME)
 	std_symbol("print", PRINT)
+	std_symbol("printlatex", PRINTLATEX)
 	std_symbol("product", PRODUCT)
 	std_symbol("quote", QUOTE)
 	std_symbol("quotient", QUOTIENT)
