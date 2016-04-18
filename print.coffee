@@ -82,41 +82,28 @@ print_denom = (p, d) ->
 	if (d == 1 && !isminusone(p2)) # p2 is EXPO
 		print_char('(')
 
-	if (isfraction(p1) || car(p1) == symbol(ADD) || car(p1) == symbol(MULTIPLY) || car(p1) == symbol(POWER) || lessp(p1, zero)) # p1 is BASE
-			print_char('(')
-			print_expr(p1); # p1 is BASE
-			print_char(')')
-	else
-		print_expr(p1); # p1 is BASE
 
 	if (isminusone(p2)) # p2 is EXPO
+		if (isfraction(p1) || car(p1) == symbol(ADD) || car(p1) == symbol(MULTIPLY) || car(p1) == symbol(POWER) || lessp(p1, zero)) # p1 is BASE
+				print_char('(')
+				print_expr(p1); # p1 is BASE
+				print_char(')')
+		else
+			print_expr(p1); # p1 is BASE
 		restore()
 		return
 
-	if (test_flag == 0)
-		print_str(power_str)
-	else
-		print_char('^')
+	#if (test_flag == 0)
+	#	print_str(power_str)
+	#else
+	#	print_char('^')
 
 	push(p2); # p2 is EXPO
 	negate()
 	p2 = pop(); # p2 is EXPO
-
-	if (isfraction(p2) || car(p2) == symbol(ADD) || car(p2) == symbol(MULTIPLY) || car(p2) == symbol(POWER)) # p2 is EXPO
-		if latexMode
-			print_char('{')
-			print_expr(p2); # p2 is EXPO
-			print_char('}')
-		else
-			print_char('(')
-			print_expr(p2); # p2 is EXPO
-			print_char(')')
-	else
-		print_expr(p2); # p2 is EXPO
-
+	print_power(p1,p2)
 	if (d == 1)
 		print_char(')')
-
 	restore()
 
 
@@ -368,51 +355,60 @@ print_tensor_inner = (p, j, k) ->
 
 print_power = (base, exponent) ->
 
-	if (isminusone(exponent))
-		if latexMode
-			print_str("\\frac{1}{")
-		else if (test_flag == 0)
-			print_str("1 / ")
-		else
-			print_str("1/")
+	#debugger
+	# if the exponent is negative then
+	# we invert the base BUT we don't do
+	# that if the base is "e", because for
+	# example when trigonometric functions are
+	# expressed in terms of exponential functions
+	# that would be really confusing, one wants to
+	# keep "e" as the base and the negative exponent
+	if (base != symbol(E))
+		if (isminusone(exponent))
+			if latexMode
+				print_str("\\frac{1}{")
+			else if (test_flag == 0)
+				print_str("1 / ")
+			else
+				print_str("1/")
 
-		if (iscons(base))
-			print_str("(")
-			print_expr(base)
-			print_str(")")
-		else
-			print_expr(base)
+			if (iscons(base))
+				print_str("(")
+				print_expr(base)
+				print_str(")")
+			else
+				print_expr(base)
 
-		if latexMode
-			print_str("}")
+			if latexMode
+				print_str("}")
 
-		return
+			return
 
-	if (isnegativeterm(exponent))
-		if latexMode
-			print_str("\\frac{1}{")
-		else if (test_flag == 0)
-			print_str("1 / ")
-		else
-			print_str("1/")
+		if (isnegativeterm(exponent))
+			if latexMode
+				print_str("\\frac{1}{")
+			else if (test_flag == 0)
+				print_str("1 / ")
+			else
+				print_str("1/")
 
-		push(exponent)
-		push_integer(-1)
-		multiply()
-		newExponent = pop()
+			push(exponent)
+			push_integer(-1)
+			multiply()
+			newExponent = pop()
 
-		if (iscons(base))
-			print_str("(")
-			print_power(base, newExponent)
-			print_str(")")
-		else
-			print_power(base, newExponent)
+			if (iscons(base))
+				print_str("(")
+				print_power(base, newExponent)
+				print_str(")")
+			else
+				print_power(base, newExponent)
 
 
-		if latexMode
-			print_str("}")
+			if latexMode
+				print_str("}")
 
-		return
+			return
 
 
 	if (base == symbol(E))
