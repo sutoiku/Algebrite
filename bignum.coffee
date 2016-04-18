@@ -540,6 +540,7 @@ bignum_scan_float = (s) ->
 
 # p is a U
 print_number = (p, accumulator) ->
+	#debugger
 	topLevelCall = false
 	if !accumulator?
 		topLevelCall = true

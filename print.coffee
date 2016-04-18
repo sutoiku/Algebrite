@@ -78,6 +78,7 @@ print_denom = (p, d) ->
 
 	# i.e. 1 / (2^(1/3))
 
+	#debugger
 	if (d == 1 && !isminusone(p2)) # p2 is EXPO
 		print_char('(')
 
@@ -162,6 +163,7 @@ print_a_over_b = (p) ->
 			n++
 		p1 = cdr(p1)
 
+	#debugger
 	if latexMode
 		print_str('\\frac{')
 
@@ -471,6 +473,7 @@ print_power = (base, exponent) ->
 			print_factor(base)
 
 		# print the power symbol
+		#debugger
 		if (test_flag == 0)
 			#print_str(" ^ ")
 			print_str(power_str)
@@ -559,6 +562,7 @@ print_factor = (p) ->
 		print_ABS_latex(p)
 		return
 	else if (car(p) == symbol(SQRT) && latexMode)
+		#debugger
 		print_SQRT_latex(p)
 		return
 	else if (car(p) == symbol(BINOMIAL) && latexMode)
