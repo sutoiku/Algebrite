@@ -58,7 +58,7 @@ roots = ->
 	i = 0
 	n = 0
 	h = tos - 2
-	roots2()
+	roots3()
 	n = tos - h
 	if (n == 0)
 		stop("roots: the polynomial is not factorable, try nroots")
@@ -223,7 +223,7 @@ mini_solve = ->
 		return
 
 	if (n == 4)
-		#console.log ">>>>>>>>>>>>>>>> actually using cubic formula <<<<<<<<<<<<<<< "
+		console.log ">>>>>>>>>>>>>>>> actually using cubic formula <<<<<<<<<<<<<<< "
 		p3 = pop() # A
 		p4 = pop() # B
 		p5 = pop() # C
@@ -380,34 +380,36 @@ mini_solve = ->
 		power()
 		ROOTS_Q = pop()
 
-		C_CHECKED_AS_NOT_ZERO = false
+		C_CHECKED_AS_NOT_ZERO = true
 		flipSignOFQSoCIsNotZero = false
 		
 		# C will go as denominator, we have to check
 		# that is not zero
-		while !C_CHECKED_AS_NOT_ZERO
 
-			# BIGC
-			push(ROOTS_Q)
-			if flipSignOFQSoCIsNotZero
-				negate()
-			push(ROOTS_DELTA1)
-			add()
-			push_rational(1, 2)
-			multiply()
-			push_rational(1, 3)
-			power()
-			BIGC = pop()
+		#while !C_CHECKED_AS_NOT_ZERO
 
-			push(BIGC)
-			simplify()
-			BIGC_simplified_toCheckIfZero = pop()
-			#console.log "C " + BIGC_simplified_toCheckIfZero.toString()
-			if iszero(BIGC_simplified_toCheckIfZero)
-				#console.log " *********************************** C IS ZERO"
-				flipSignOFQSoCIsNotZero = true
-			else
-				C_CHECKED_AS_NOT_ZERO = true
+		console.log "2222"
+		# BIGC
+		push(ROOTS_Q)
+		if flipSignOFQSoCIsNotZero
+			negate()
+		push(ROOTS_DELTA1)
+		add()
+		push_rational(1, 2)
+		multiply()
+		push_rational(1, 3)
+		power()
+		BIGC = pop()
+
+		push(BIGC)
+		simplify()
+		BIGC_simplified_toCheckIfZero = pop()
+		console.log "C " + BIGC_simplified_toCheckIfZero.toString()
+		if iszero(BIGC_simplified_toCheckIfZero)
+			#console.log " *********************************** C IS ZERO"
+			flipSignOFQSoCIsNotZero = true
+		else
+			C_CHECKED_AS_NOT_ZERO = true
 
 
 		push(BIGC)
@@ -415,11 +417,7 @@ mini_solve = ->
 		multiply()
 		three_a_BIGC = pop()
 
-		push(three_a_BIGC)
-		push_integer(2)
-		multiply()
-		six_a_BIGC = pop()
-
+		console.log "33333"
 
 		# imaginary parts calculations
 		push(imaginaryunit)
@@ -428,8 +426,8 @@ mini_solve = ->
 		power()
 		multiply()
 		i_sqrt3 = pop()
-		push_integer(1)
 		push(i_sqrt3)
+		push_integer(1)
 		add()
 		one_plus_i_sqrt3 = pop()
 		push_integer(1)
@@ -467,10 +465,12 @@ mini_solve = ->
 		multiply()
 		push_integer(2)
 		divide() # second term
-		push(one_minus_i_sqrt3)
 		push(ROOTS_DELTA0)
+		push_integer(2)
 		multiply()
-		push(six_a_BIGC)
+		push(three_a_BIGC)
+		push(one_plus_i_sqrt3)
+		multiply()
 		divide() # third term
 		# now add the three terms together
 		add()
@@ -483,10 +483,12 @@ mini_solve = ->
 		multiply()
 		push_integer(2)
 		divide() # second term
-		push(one_plus_i_sqrt3)
 		push(ROOTS_DELTA0)
+		push_integer(2)
 		multiply()
-		push(six_a_BIGC)
+		push(three_a_BIGC)
+		push(one_minus_i_sqrt3)
+		multiply()
 		divide() # third term
 		# now add the three terms together
 		add()
