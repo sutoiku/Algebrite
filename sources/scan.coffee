@@ -34,6 +34,10 @@ scan_str = 0
 token_str = 0
 token_buf = 0
 
+lastFoundSymbol = null
+symbolsRightOfAssignment = []
+isSymbolLeftOfAssignment = true
+
 # Returns number of chars scanned and expr on stack.
 
 # Returns zero when nothing left to scan.
@@ -82,11 +86,20 @@ scan_meta = (s) ->
 scan_stmt = ->
 	scan_relation()
 	if (token == '=')
+		symbolLeftOfAssignment = lastFoundSymbol
+		console.log("assignment!")
+		isSymbolLeftOfAssignment = false
 		get_next_token()
 		push_symbol(SETQ)
 		swap()
 		scan_relation()
 		list(3)
+		isSymbolLeftOfAssignment = true
+		console.log "dependencies: " + symbolLeftOfAssignment + " depends on: "
+		for i in symbolsRightOfAssignment
+			if i != symbolLeftOfAssignment
+				console.log "	" + i
+		symbolsRightOfAssignment = []
 
 scan_relation = ->
 	scan_expression()
@@ -268,6 +281,10 @@ scan_symbol = ->
 				push(usr_symbol(token_buf))
 	else
 		push(usr_symbol(token_buf))
+	lastFoundSymbol = token_buf
+	console.log("found symbol: " + token_buf + " left of assignment: " + isSymbolLeftOfAssignment)
+	if !isSymbolLeftOfAssignment
+		symbolsRightOfAssignment.push token_buf
 	get_next_token()
 
 scan_string = ->
