@@ -19,7 +19,7 @@ stop = (s) ->
 		
 		#longjmp(stop_return, 1)
 
-# s a string here
+# parses and runs one statement/expression at a time
 inited = false
 run = (stringToBeRun) ->
 
