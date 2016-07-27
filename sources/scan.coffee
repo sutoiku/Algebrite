@@ -95,10 +95,33 @@ scan_stmt = ->
 		scan_relation()
 		list(3)
 		isSymbolLeftOfAssignment = true
-		console.log "dependencies: " + symbolLeftOfAssignment + " depends on: "
+
+		# in case of re-assignment, the symbol on the
+		# left will also be in the set of the symbols
+		# on the right. In that case just remove it from
+		# the symbols on the right.
+		indexOfSymbolLeftOfAssignment = symbolsRightOfAssignment.indexOf(symbolLeftOfAssignment)
+		if indexOfSymbolLeftOfAssignment != -1
+			symbolsRightOfAssignment.splice(indexOfSymbolLeftOfAssignment, 1) 
+		
+		# print out the immediate dependencies
+		console.log "locally, " + symbolLeftOfAssignment + " depends on: "
 		for i in symbolsRightOfAssignment
-			if i != symbolLeftOfAssignment
-				console.log "	" + i
+			console.log "	" + i
+
+		# ok add the local dependencies to the existing
+		# dependencies of this left-value symbol
+		
+		# create the exiting dependencies list if it doesn't exist
+		symbolsDependencies[symbolLeftOfAssignment] ?= []
+		existingDependencies = symbolsDependencies[symbolLeftOfAssignment]
+
+		# copy over the new dependencies to the existing
+		# dependencies avoiding repetitions
+		for i in symbolsRightOfAssignment
+			if existingDependencies.indexOf(i) == -1
+				existingDependencies.push i
+
 		symbolsRightOfAssignment = []
 
 scan_relation = ->
@@ -283,8 +306,15 @@ scan_symbol = ->
 		push(usr_symbol(token_buf))
 	lastFoundSymbol = token_buf
 	console.log("found symbol: " + token_buf + " left of assignment: " + isSymbolLeftOfAssignment)
+	
+	# if we were looking at the right part of an assignment while we
+	# found the symbol, then add it to the "symbolsRightOfAssignment"
+	# set (we check for duplications)
 	if !isSymbolLeftOfAssignment
-		symbolsRightOfAssignment.push token_buf
+		# avoid duplications
+		if symbolsRightOfAssignment.indexOf(token_buf) == -1
+			console.log("... adding symbol: " + token_buf + " to the set of the symbols right of assignment")
+			symbolsRightOfAssignment.push token_buf
 	get_next_token()
 
 scan_string = ->

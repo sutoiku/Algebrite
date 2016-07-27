@@ -19,6 +19,122 @@ stop = (s) ->
 		
 		#longjmp(stop_return, 1)
 
+findDependenciesInScript = (stringToBeParsed) ->
+
+	inited = true
+	symbolsDependencies = {}
+	indexOfPartRemainingToBeParsed = 0
+
+	allReturnedStrings = ""
+	n = 0
+	while (1)
+
+		try
+			errorMessage = ""
+			check_stack()
+			n = scan(stringToBeParsed.substring(indexOfPartRemainingToBeParsed))
+			pop()
+			check_stack()
+		catch error
+			if PRINTOUTRESULT then console.log error
+			#debugger
+			allReturnedStrings += error.message
+			init()
+			break
+
+
+		if (n == 0)
+			break
+
+		indexOfPartRemainingToBeParsed += n
+
+	testableString = ""
+
+	# print out all local dependencies as collected by this
+	# parsing pass
+	console.log "all local dependencies ----------------"
+	testableString += "All local dependencies: "
+	for key, value of symbolsDependencies
+		console.log "variable " + key + " depends on: "
+		testableString +=  " variable " + key + " depends on: "
+		for i in value
+			console.log "		" + i
+			testableString +=  i + ", "
+		testableString += "; "
+	testableString += ". "
+
+	# print out all global dependencies as collected by this
+	# parsing pass
+	console.log "All dependencies recursively ----------------"
+	testableString += "All dependencies recursively: "
+	for key of symbolsDependencies
+
+		console.log "	variable " + key + " depends on: "
+		testableString +=  " variable " + key + " depends on: "
+
+		recursedDependencies = []
+		variablesWithCycles = []
+		cyclesDescriptions = []
+		recursiveDependencies key, recursedDependencies, [], variablesWithCycles, [], cyclesDescriptions
+
+		for i in variablesWithCycles
+			console.log "		--> cycle through " + i
+
+		for i in recursedDependencies
+			console.log "		" + i
+			testableString +=  i + ", "
+		testableString += "; "
+
+		for i in cyclesDescriptions
+			testableString += " " + i + ", "
+
+	symbolsDependencies = {}
+	console.log "testable string: " + testableString
+
+	return testableString
+
+recursiveDependencies = (variableToBeChecked, arrayWhereDependenciesWillBeAdded, variablesAlreadyFleshedOut, variablesWithCycles, chainBeingChecked, cyclesDescriptions) ->
+	variablesAlreadyFleshedOut.push variableToBeChecked
+	chainBeingChecked.push variableToBeChecked
+	if !symbolsDependencies[variableToBeChecked]?
+		# end case: there are no more dependencies
+		if arrayWhereDependenciesWillBeAdded.indexOf(variableToBeChecked) == -1
+			arrayWhereDependenciesWillBeAdded.push variableToBeChecked
+		return arrayWhereDependenciesWillBeAdded
+	else
+		# recursion case: we have to dig deeper
+		for i in symbolsDependencies[variableToBeChecked]
+
+			# check that there is no recursion in dependencies
+			# we do that by keeping a list of variables that
+			# have already been "fleshed-out". If we encounter
+			# any of those "fleshed-out" variables while
+			# fleshing out, then there is a cycle 
+
+			if variablesAlreadyFleshedOut.indexOf(i) != -1
+				console.log "	found cycle:"
+				cyclesDescription = ""
+				for k in chainBeingChecked
+					console.log k + " --> "
+					cyclesDescription += k + " --> "
+				console.log " --> ... then " + i + " again"
+				cyclesDescription += " --> ... then " + i + " again"
+				cyclesDescriptions.push cyclesDescription
+				#console.log "		--> cycle through " + i
+				# we want to flesh-out i but it's already been
+				# fleshed-out, just add it to the variables
+				# with cycles and move on
+				variablesWithCycles.push i
+			else
+				# flesh-out i recursively
+				recursiveDependencies i, arrayWhereDependenciesWillBeAdded, variablesAlreadyFleshedOut, variablesWithCycles, chainBeingChecked, cyclesDescriptions
+				chainBeingChecked.pop()
+				#variablesAlreadyFleshedOut.pop()
+
+		return arrayWhereDependenciesWillBeAdded
+
+
+
 # parses and runs one statement/expression at a time
 inited = false
 run = (stringToBeRun) ->
@@ -213,3 +329,4 @@ check_esc_flag = ->
 
 
 (exports ? this).run = run
+(exports ? this).findDependenciesInScript = findDependenciesInScript
