@@ -19,6 +19,17 @@ stop = (s) ->
 		
 		#longjmp(stop_return, 1)
 
+test_dependencies = ->
+	if findDependenciesInScript('f = x+1\n g = f\n h = g\n f = g') == "All local dependencies:  variable f depends on: x, g, ;  variable g depends on: f, ;  variable h depends on: g, ; . All dependencies recursively:  variable f depends on: x, ;  f --> g -->  --> ... then f again,  variable g depends on: x, ;  g --> f -->  --> ... then g again,  variable h depends on: x, ;  h --> g --> f -->  --> ... then g again, "
+		console.log "ok"
+	else
+		console.log "fail"
+
+	if findDependenciesInScript('f = x+1\n g = f + y\n h = g') == "All local dependencies:  variable f depends on: x, ;  variable g depends on: f, y, ;  variable h depends on: g, ; . All dependencies recursively:  variable f depends on: x, ;  variable g depends on: x, y, ;  variable h depends on: x, y, ; "
+		console.log "ok"
+	else
+		console.log "fail"
+
 findDependenciesInScript = (stringToBeParsed) ->
 
 	inited = true
