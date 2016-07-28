@@ -387,6 +387,26 @@ Eval_rank = ->
 	else
 		push(zero)
 
+
+Eval_setq = ->
+	if (caadr(p1) == symbol(INDEX))
+		setq_indexed()
+		return
+
+	if (iscons(cadr(p1)))
+		define_user_function()
+		return
+
+	if (!issymbol(cadr(p1)))
+		stop("symbol assignment: error in symbol")
+
+	push(caddr(p1))
+	Eval()
+	p2 = pop()
+	set_binding(cadr(p1), p2)
+
+	push(symbol(NIL))
+
 #-----------------------------------------------------------------------------
 #
 #	Example: a[1] = b
@@ -418,24 +438,6 @@ setq_indexed = ->
 	set_binding(p4, p3)
 	push(symbol(NIL))
 
-Eval_setq = ->
-	if (caadr(p1) == symbol(INDEX))
-		setq_indexed()
-		return
-
-	if (iscons(cadr(p1)))
-		define_user_function()
-		return
-
-	if (!issymbol(cadr(p1)))
-		stop("symbol assignment: error in symbol")
-
-	push(caddr(p1))
-	Eval()
-	p2 = pop()
-	set_binding(cadr(p1), p2)
-
-	push(symbol(NIL))
 
 Eval_sqrt = ->
 	push(cadr(p1))
