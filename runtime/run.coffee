@@ -21,14 +21,39 @@ stop = (s) ->
 
 test_dependencies = ->
 	if findDependenciesInScript('f = x+1\n g = f\n h = g\n f = g') == "All local dependencies:  variable f depends on: x, g, ;  variable g depends on: f, ;  variable h depends on: g, ; . All dependencies recursively:  variable f depends on: x, ;  f --> g -->  --> ... then f again,  variable g depends on: x, ;  g --> f -->  --> ... then g again,  variable h depends on: x, ;  h --> g --> f -->  --> ... then g again, "
-		console.log "ok"
+		console.log "ok dependency test"
 	else
-		console.log "fail"
+		console.log "fail dependency test"
 
 	if findDependenciesInScript('f = x+1\n g = f + y\n h = g') == "All local dependencies:  variable f depends on: x, ;  variable g depends on: f, y, ;  variable h depends on: g, ; . All dependencies recursively:  variable f depends on: x, ;  variable g depends on: x, y, ;  variable h depends on: x, y, ; "
-		console.log "ok"
+		console.log "ok dependency test"
 	else
-		console.log "fail"
+		console.log "fail dependency test"
+
+	if findDependenciesInScript('g = h(x,y)') == "All local dependencies:  variable g depends on: h, x, y, ; . All dependencies recursively:  variable g depends on: h, x, y, ; "
+		console.log "ok dependency test"
+	else
+		console.log "fail dependency test"
+
+	if findDependenciesInScript('f(x,y) = k') == "All local dependencies:  variable f depends on: 'x, 'y, k, ; . All dependencies recursively:  variable f depends on: 'x, 'y, k, ; "
+		console.log "ok dependency test"
+	else
+		console.log "fail dependency test"
+
+	if findDependenciesInScript('x = z\n f(x,y) = k') == "All local dependencies:  variable x depends on: z, ;  variable f depends on: 'x, 'y, k, ; . All dependencies recursively:  variable x depends on: z, ;  variable f depends on: 'x, 'y, k, ; "
+		console.log "ok dependency test"
+	else
+		console.log "fail dependency test"
+
+	if findDependenciesInScript('x = z\n g = f(x,y)') == "All local dependencies:  variable x depends on: z, ;  variable g depends on: f, x, y, ; . All dependencies recursively:  variable x depends on: z, ;  variable g depends on: f, z, y, ; "
+		console.log "ok dependency test"
+	else
+		console.log "fail dependency test"
+
+	if findDependenciesInScript('x = 1\n x = y\n x = z') == "All local dependencies:  variable x depends on: y, z, ; . All dependencies recursively:  variable x depends on: y, z, ; "
+		console.log "ok dependency test"
+	else
+		console.log "fail dependency test"
 
 findDependenciesInScript = (stringToBeParsed) ->
 
