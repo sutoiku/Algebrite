@@ -387,6 +387,20 @@ Eval_rank = ->
 	else
 		push(zero)
 
+# Evaluates the right side and assigns the
+# result of the evaluation to the left side.
+# It's called setq because it stands for "set quoted" from Lisp,
+# see:
+#   http://stackoverflow.com/questions/869529/difference-between-set-setq-and-setf-in-common-lisp
+
+# Example:
+#   f = x
+#   // f evaluates to x, so x is assigned to g really
+#   // rather than actually f being assigned to g
+#   g = f
+#   f = y
+#   g
+#   > x
 
 Eval_setq = ->
 	if (caadr(p1) == symbol(INDEX))
@@ -407,6 +421,15 @@ Eval_setq = ->
 
 	push(symbol(NIL))
 
+# Here "setq" is a misnomer because
+# setq wouldn't work in Lisp to set array elements
+# since setq stands for "set quoted" and you wouldn't
+# quote an array element access.
+# You'd rather use setf, which is a macro that can
+# assign a value to anything.
+#   (setf (aref YourArray 2) "blue")
+# see
+#   http://stackoverflow.com/questions/18062016/common-lisp-how-to-set-an-element-in-a-2d-array
 #-----------------------------------------------------------------------------
 #
 #	Example: a[1] = b
