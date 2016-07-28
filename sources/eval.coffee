@@ -44,6 +44,14 @@ Eval_sym = ->
 
 	p2 = get_binding(p1)
 	push(p2)
+
+	# differently from standard Lisp,
+	# here the evaluation is not
+	# one-step only, rather it keeps evaluating
+	# "all the way" until a symbol is
+	# defined as itself.
+	# Uncomment these two lines to get Lisp
+	# behaviour (and break most tests)
 	if (p1 != p2)
 		Eval()
 
