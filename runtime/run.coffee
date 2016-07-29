@@ -386,6 +386,10 @@ check_esc_flag = ->
 	if (esc_flag)
 		stop("esc key")
 
-
+computeResultsAndJavaScriptFromAlgebra = ->
+	code: "// no code generated yet\n//try again later"
+	result: "46\n\n46"
+	
 (exports ? this).run = run
 (exports ? this).findDependenciesInScript = findDependenciesInScript
+(exports ? this).computeResultsAndJavaScriptFromAlgebra = computeResultsAndJavaScriptFromAlgebra
